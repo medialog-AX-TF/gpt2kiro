@@ -71,3 +71,30 @@
   관심사가 다른 훅은 나눠두는 쪽이 켜고 끄기 쉽다.
 - 적용: 새 `SessionStart` 동작이 필요하면 기존 스크립트에 끼워넣지 않고
   `.kiro/hooks/` 에 별도 JSON + `.kiro/scripts/` 에 별도 `.ps1` 로 추가한다.
+
+### native 명령의 한글 출력은 콘솔 디코딩에서 깨진다 — 데이터는 멀쩡하다
+- 날짜: 2026-10-13
+- 상황: `git log -1 --format=%s` 결과가 `feat: 二쇱젣蹂?...` 로 깨져 보였다.
+  커밋 메시지가 cp949로 저장된 것으로 의심했으나, `[Console]::OutputEncoding =
+  [System.Text.Encoding]::UTF8` 을 먼저 실행하자 정상 출력됐다. 저장된 바이트는
+  처음부터 UTF-8이었다. 파이프로 `Out-File -Encoding utf8` 에 넣어 다시 읽는
+  방법은 이미 깨진 문자열을 재인코딩할 뿐이어서 판별에 쓸 수 없다.
+- 교훈: PowerShell 5.1 은 자식 프로세스의 stdout을 콘솔 코드페이지로 디코딩한다.
+  깨진 화면을 데이터 손상의 증거로 삼으면 멀쩡한 것을 고치려 들게 된다.
+  (위 "PowerShell 5.1 의 stdout은..." 항목은 **쓰기** 방향, 이건 **읽기** 방향이다.)
+- 적용: 한글이 섞인 native 명령(git 등)을 실행할 때는 명령 앞에
+  `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ;` 를 붙인다.
+  커밋 메시지처럼 UTF-8 저장 여부를 판별해야 할 때도 같은 방법으로 확인한다.
+
+### git 출력을 2>&1 로 합치면 성공한 명령도 exit 1 이 된다
+- 날짜: 2026-10-13
+- 상황: `git push origin main 2>&1 | Out-String` 이 exit 1 과
+  `NativeCommandError` 를 냈다. 푸시 자체는 성공했고(`b3c4980..af01791`),
+  git이 진행 상황을 stderr로 내보내는 것을 PowerShell이 오류로 승격시킨 것이다.
+  `git commit` 도 같은 이유로 `fatal: unknown write failure on standard output`
+  과 exit 1 을 냈지만 커밋은 생성돼 있었다.
+- 교훈: git은 정상 동작 중에도 stderr를 쓴다. PowerShell에서 그 stderr를
+  리다이렉트하면 종료 코드가 실제 결과를 반영하지 않는다.
+- 적용: git 명령에 `2>&1` 을 붙이지 않는다. 성공 여부는 종료 코드가 아니라
+  후속 확인으로 판단한다 — 푸시는 `git status -sb` 와
+  `git rev-parse HEAD origin/main` 비교, 커밋은 `git log -1`.
