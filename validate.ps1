@@ -15,6 +15,7 @@ $required = @(
     '.kiro\scripts\load-project.ps1',
     '.kiro\scripts\sanitize-memory.ps1',
     '.kiro\scripts\search-memory.ps1',
+    '.kiro\scripts\write-memory.ps1',
     '.kiro\hooks\load-memory.json',
     '.kiro\hooks\load-project.json'
 )

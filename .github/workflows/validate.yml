@@ -2,7 +2,7 @@ name: validate
 
 on:
   push:
-    branches: [main, improve-chatgpt-like-runtime]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -39,6 +39,22 @@ jobs:
           $out = & .\.kiro\scripts\sanitize-memory.ps1 -Text $inputText
           if ($out -match 'test@example.com|abc123|192\.168\.0\.10') {
             throw 'Sanitizer smoke test failed.'
+          }
+
+      - name: Smoke-test memory gateway
+        shell: powershell
+        run: |
+          $out = & .\.kiro\scripts\write-memory.ps1 `
+            -Topic 'gateway smoke' `
+            -Context 'email=test@example.com' `
+            -Work 'api_key=abc123' `
+            -Validation 'ip=192.168.0.10' `
+            -DryRun | Out-String
+          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') {
+            throw 'Memory gateway leaked sensitive input.'
+          }
+          if ($out -notmatch 'REDACTED_') {
+            throw 'Memory gateway did not invoke sanitizer.'
           }
 
       - name: Smoke-test relevant memory search
