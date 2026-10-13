@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [switch]$ReturnText
+)
 
 $ErrorActionPreference = 'SilentlyContinue'
 $kiroDir = Split-Path $PSScriptRoot -Parent
@@ -79,9 +81,7 @@ try {
             Where-Object { $_.Name -notlike '.*' } |
             Sort-Object Name |
             Select-Object -ExpandProperty Name)
-        if ($available.Count -gt 0) {
-            $projectParts.Add('[available projects] ' + ($available -join ', '))
-        }
+        if ($available.Count -gt 0) { $projectParts.Add('[available projects] ' + ($available -join ', ')) }
     }
 
     $projectContext = $projectParts -join "`n`n"
@@ -97,7 +97,9 @@ try {
         ''
     ) -join "`n"
 
-    Write-Utf8Stdout ($header + $body + "`n=== GPT2KIRO CONTEXT END ===`n")
+    $result = $header + $body + "`n=== GPT2KIRO CONTEXT END ===`n"
+    if ($ReturnText) { Write-Output $result }
+    else { Write-Utf8Stdout $result }
 }
 catch {
     # Context loading is fail-open. Session startup must continue.
