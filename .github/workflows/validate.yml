@@ -19,14 +19,16 @@ jobs:
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
-            if ($parseErrors) {
-              $errors += $parseErrors
-            }
+            if ($parseErrors) { $errors += $parseErrors }
           }
           if ($errors.Count -gt 0) {
             $errors | Format-List | Out-String | Write-Host
             exit 1
           }
+
+      - name: Install unified hook
+        shell: powershell
+        run: .\install.ps1
 
       - name: Validate workspace structure
         shell: powershell
@@ -37,9 +39,7 @@ jobs:
         run: |
           $inputText = 'email=test@example.com api_key=abc123 ip=192.168.0.10'
           $out = & .\.kiro\scripts\sanitize-memory.ps1 -Text $inputText
-          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') {
-            throw 'Sanitizer smoke test failed.'
-          }
+          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') { throw 'Sanitizer smoke test failed.' }
 
       - name: Smoke-test memory gateway
         shell: powershell
@@ -50,17 +50,26 @@ jobs:
             -Work 'api_key=abc123' `
             -Validation 'ip=192.168.0.10' `
             -DryRun | Out-String
-          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') {
-            throw 'Memory gateway leaked sensitive input.'
-          }
-          if ($out -notmatch 'REDACTED_') {
-            throw 'Memory gateway did not invoke sanitizer.'
-          }
+          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') { throw 'Memory gateway leaked sensitive input.' }
+          if ($out -notmatch 'REDACTED_') { throw 'Memory gateway did not invoke sanitizer.' }
+
+      - name: Smoke-test unified context builder
+        shell: powershell
+        run: |
+          $out = & .\.kiro\scripts\load-context.ps1 | Out-String
+          if (-not $out) { throw 'Unified context builder returned no output.' }
+          $budget = Get-Content .\.kiro\context-budget.json -Raw | ConvertFrom-Json
+          $maxChars = [int]$budget.totalTokens * [int]$budget.approxCharsPerToken + 2048
+          if ($out.Length -gt $maxChars) { throw 'Unified context exceeded configured budget tolerance.' }
+
+      - name: Smoke-test memory consolidation
+        shell: powershell
+        run: |
+          $out = & .\.kiro\scripts\consolidate-memory.ps1 -OlderThanDays 0 -DryRun | Out-String
+          if ($out -notmatch 'Long-term memory') { throw 'Consolidation dry-run did not produce long-term output.' }
 
       - name: Smoke-test relevant memory search
         shell: powershell
         run: |
           $out = & .\.kiro\scripts\search-memory.ps1 -Query 'Kiro memory project' -Top 3
-          if (-not $out) {
-            throw 'Memory search returned no output.'
-          }
+          if (-not $out) { throw 'Memory search returned no output.' }
