@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-label="gpt2kiro architecture">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#57606a"/></marker>
+    <style>
+      .box{fill:#f6f8fa;stroke:#d0d7de;stroke-width:2;rx:18}.core{fill:#ddf4ff;stroke:#54aeff;stroke-width:2;rx:18}.safe{fill:#dafbe1;stroke:#2da44e;stroke-width:2;rx:18}.memory{fill:#fff8c5;stroke:#bf8700;stroke-width:2;rx:18}.title{font:700 30px Arial,sans-serif;fill:#24292f}.text{font:22px Arial,sans-serif;fill:#24292f}.small{font:18px Arial,sans-serif;fill:#57606a}.line{stroke:#57606a;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1400" height="820" fill="#ffffff"/>
+  <text x="700" y="55" text-anchor="middle" class="title">gpt2kiro — ChatGPT 스타일 Context &amp; Memory Runtime</text>
+
+  <rect x="540" y="90" width="320" height="90" class="core"/><text x="700" y="130" text-anchor="middle" class="text">Kiro / LLM</text><text x="700" y="158" text-anchor="middle" class="small">사용자와 대화하는 실행 주체</text>
+
+  <rect x="500" y="235" width="400" height="100" class="core"/><text x="700" y="278" text-anchor="middle" class="text">Unified Context Builder</text><text x="700" y="307" text-anchor="middle" class="small">load-context.ps1 + Context Budget</text>
+  <path d="M700 180 L700 235" class="line"/>
+
+  <rect x="70" y="420" width="280" height="120" class="box"/><text x="210" y="465" text-anchor="middle" class="text">Steering</text><text x="210" y="497" text-anchor="middle" class="small">보안·행동 규칙</text><text x="210" y="523" text-anchor="middle" class="small">항상 우선</text>
+  <rect x="390" y="420" width="280" height="120" class="memory"/><text x="530" y="465" text-anchor="middle" class="text">Recent / Long-term</text><text x="530" y="497" text-anchor="middle" class="small">최근 기억 + 장기 기억</text><text x="530" y="523" text-anchor="middle" class="small">자동 주입</text>
+  <rect x="730" y="420" width="280" height="120" class="memory"/><text x="870" y="465" text-anchor="middle" class="text">Active Project</text><text x="870" y="497" text-anchor="middle" class="small">현재 프로젝트 정의</text><text x="870" y="523" text-anchor="middle" class="small">최근 프로젝트 기록</text>
+  <rect x="1050" y="420" width="280" height="120" class="memory"/><text x="1190" y="465" text-anchor="middle" class="text">Relevant Search</text><text x="1190" y="497" text-anchor="middle" class="small">필요할 때 과거 검색</text><text x="1190" y="523" text-anchor="middle" class="small">search-memory.ps1</text>
+
+  <path d="M210 420 L540 320" class="line"/><path d="M530 420 L635 335" class="line"/><path d="M870 420 L765 335" class="line"/><path d="M1190 420 L860 320" class="line"/>
+
+  <rect x="390" y="650" width="280" height="110" class="safe"/><text x="530" y="692" text-anchor="middle" class="text">Safe Memory Write</text><text x="530" y="723" text-anchor="middle" class="small">write-memory → sanitizer</text>
+  <rect x="730" y="650" width="280" height="110" class="safe"/><text x="870" y="692" text-anchor="middle" class="text">Consolidation</text><text x="870" y="723" text-anchor="middle" class="small">Daily → Weekly → Long-term</text>
+  <path d="M700 335 L530 650" class="line"/><path d="M700 335 L870 650" class="line"/>
+
+  <text x="700" y="800" text-anchor="middle" class="small">핵심: 최근 기억은 자동으로, 오래된 기억은 필요할 때, 새 기억은 안전하게 저장</text>
+</svg>
