@@ -26,9 +26,9 @@ jobs:
             exit 1
           }
 
-      - name: Install unified hook
+      - name: Smoke-test beginner setup wizard
         shell: powershell
-        run: .\install.ps1
+        run: .\setup.ps1 -NonInteractive -SkipProject
 
       - name: Validate workspace structure
         shell: powershell
