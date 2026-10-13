@@ -72,7 +72,6 @@ if ($ProjectSlug) {
     $projectDir = Join-Path $projectsDir $ProjectSlug
     if (-not (Test-Path -LiteralPath $projectDir -PathType Container)) { throw "Unknown project slug: $ProjectSlug" }
     $chatsDir = Join-Path $projectDir 'chats'
-    if (-not (Test-Path -LiteralPath $chatsDir)) { New-Item -ItemType Directory -Path $chatsDir | Out-Null }
     $fileName = "$date-$time-$(Slugify $topic).md"
     $target = Join-Path $chatsDir $fileName
     $text = "# $date — $topic`n`n$body"
@@ -80,6 +79,7 @@ if ($ProjectSlug) {
     $indexEntry = "- [$date]($relative) — [$ProjectSlug] $topic"
 
     if ($DryRun) { Write-Output $text; exit 0 }
+    if (-not (Test-Path -LiteralPath $chatsDir)) { New-Item -ItemType Directory -Path $chatsDir | Out-Null }
     [System.IO.File]::WriteAllText($target, $text.TrimEnd() + "`n", $Utf8NoBom)
 
     $projectIndex = Join-Path $projectDir 'index.md'
@@ -91,10 +91,10 @@ if ($ProjectSlug) {
     }
 }
 else {
-    if (-not (Test-Path -LiteralPath $memoryDir)) { New-Item -ItemType Directory -Path $memoryDir | Out-Null }
     $target = Join-Path $memoryDir "$date.md"
     $indexEntry = "- [$date]($date.md) — $topic"
     if ($DryRun) { Write-Output $body; exit 0 }
+    if (-not (Test-Path -LiteralPath $memoryDir)) { New-Item -ItemType Directory -Path $memoryDir | Out-Null }
 
     if (-not (Test-Path -LiteralPath $target)) {
         [System.IO.File]::WriteAllText($target, "# $date`n`n$body".TrimEnd() + "`n", $Utf8NoBom)
