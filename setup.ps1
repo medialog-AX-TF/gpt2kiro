@@ -14,13 +14,23 @@ function Step([string]$Text) {
     Write-Host ("== {0} ==" -f $Text)
 }
 
+function Run-PowerShellScript {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [string[]]$Arguments = @()
+    )
+
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $Path @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw ("Script failed ({0}): {1}" -f $LASTEXITCODE, $Path)
+    }
+}
+
 Step '1/3 Install workspace hook'
-& (Join-Path $root 'install.ps1')
-if ($LASTEXITCODE -ne 0) { throw 'install.ps1 failed.' }
+Run-PowerShellScript -Path (Join-Path $root 'install.ps1')
 
 Step '2/3 Validate workspace'
-& (Join-Path $root 'validate.ps1')
-if ($LASTEXITCODE -ne 0) { throw 'validate.ps1 failed.' }
+Run-PowerShellScript -Path (Join-Path $root 'validate.ps1')
 
 if ($SkipProject) {
     Step '3/3 Project creation skipped'
@@ -46,8 +56,9 @@ if (-not $Goal -and -not $NonInteractive) {
 if (-not $Goal) { $Goal = 'First gpt2kiro project' }
 
 Step '3/3 Create first project'
-& (Join-Path $root '.kiro\scripts\new-project.ps1') -Name $ProjectName -Goal $Goal
-if ($LASTEXITCODE -ne 0) { throw 'new-project.ps1 failed.' }
+Run-PowerShellScript `
+    -Path (Join-Path $root '.kiro\scripts\new-project.ps1') `
+    -Arguments @('-Name', $ProjectName, '-Goal', $Goal)
 
 Write-Host ''
 Write-Host 'Setup complete.'
