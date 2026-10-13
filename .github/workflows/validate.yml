@@ -1,0 +1,50 @@
+name: validate
+
+on:
+  push:
+    branches: [main, improve-chatgpt-like-runtime]
+  pull_request:
+
+jobs:
+  powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse PowerShell scripts
+        shell: powershell
+        run: |
+          $errors = @()
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors) {
+              $errors += $parseErrors
+            }
+          }
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Host
+            exit 1
+          }
+
+      - name: Validate workspace structure
+        shell: powershell
+        run: .\validate.ps1
+
+      - name: Smoke-test sanitizer
+        shell: powershell
+        run: |
+          $inputText = 'email=test@example.com api_key=abc123 ip=192.168.0.10'
+          $out = & .\.kiro\scripts\sanitize-memory.ps1 -Text $inputText
+          if ($out -match 'test@example.com|abc123|192\.168\.0\.10') {
+            throw 'Sanitizer smoke test failed.'
+          }
+
+      - name: Smoke-test relevant memory search
+        shell: powershell
+        run: |
+          $out = & .\.kiro\scripts\search-memory.ps1 -Query 'Kiro memory project' -Top 3
+          if (-not $out) {
+            throw 'Memory search returned no output.'
+          }
