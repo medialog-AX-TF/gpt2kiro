@@ -56,7 +56,7 @@ jobs:
       - name: Smoke-test unified context builder
         shell: powershell
         run: |
-          $out = & .\.kiro\scripts\load-context.ps1 | Out-String
+          $out = & .\.kiro\scripts\load-context.ps1 -ReturnText | Out-String
           if (-not $out) { throw 'Unified context builder returned no output.' }
           $budget = Get-Content .\.kiro\context-budget.json -Raw | ConvertFrom-Json
           $maxChars = [int]$budget.totalTokens * [int]$budget.approxCharsPerToken + 2048
