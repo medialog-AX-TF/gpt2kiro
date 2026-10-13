@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Load Active Project on Session Start",
+      "trigger": "SessionStart",
+      "description": "세션 시작 시 .kiro/projects/ACTIVE 가 가리키는 프로젝트의 정의·채팅 목차·최근 채팅을 세션 컨텍스트로 주입한다.",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"e:\\DEV\\새 폴더\\.kiro\\scripts\\load-project.ps1\"",
+        "timeout": 20
+      }
+    }
+  ]
+}
