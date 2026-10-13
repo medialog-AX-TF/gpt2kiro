@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Load Memory on Session Start",
+      "trigger": "SessionStart",
+      "description": "세션 시작 시 .kiro/memory 의 목차·누적 교훈·최근 날짜 기록을 세션 컨텍스트로 주입한다.",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"e:\\DEV\\새 폴더\\.kiro\\scripts\\load-memory.ps1\"",
+        "timeout": 20
+      }
+    }
+  ]
+}
