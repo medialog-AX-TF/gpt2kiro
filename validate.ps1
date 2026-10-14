@@ -45,9 +45,11 @@ if (Test-Path -LiteralPath $hookPath) {
     try {
         $hook = Get-Content -LiteralPath $hookPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $command = [string]$hook.hooks[0].action.command
-        if (-not $command) { $errors.Add('Unified context hook has no command.') }
-        elseif ($command -notmatch [regex]::Escape($root)) {
-            $warnings.Add('Unified context hook is not installed with this workspace absolute path. Run .\install.ps1')
+        if (-not $command) {
+            $errors.Add('Unified context hook has no command.')
+        }
+        elseif ($command -notmatch [regex]::Escape('.kiro\scripts\load-context.ps1')) {
+            $errors.Add('Unified context hook must use the workspace-relative load-context.ps1 path.')
         }
     }
     catch { $errors.Add('Invalid hook JSON: load-context.json') }

@@ -26,11 +26,7 @@ jobs:
             exit 1
           }
 
-      - name: Smoke-test simple setup
-        shell: powershell
-        run: .\setup.ps1
-
-      - name: Validate workspace structure
+      - name: Validate zero-setup workspace
         shell: powershell
         run: .\validate.ps1
 
