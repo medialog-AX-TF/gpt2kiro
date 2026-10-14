@@ -1,13 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "approxCharsPerToken": 4,
-  "totalTokens": 7000,
+  "totalTokens": 4000,
   "sections": {
-    "lessons": 1200,
-    "longTerm": 1000,
-    "recentMemory": 1800,
-    "project": 3000
+    "lessons": 1000,
+    "longTerm": 1200,
+    "recentMemory": 1800
   },
-  "recentMemoryFiles": 2,
-  "recentProjectChats": 2
+  "recentMemoryFiles": 2
 }
