@@ -2,21 +2,18 @@
 
 GPT를 사용할 수 없는 환경에서 **Kiro를 GPT처럼 편하게 사용하기 위한 Memory/Context 설정**입니다.
 
-> **설치한 뒤 Kiro를 열고 그냥 대화하면 됩니다.**
+> **이 저장소를 Kiro workspace로 열고 그냥 대화하면 됩니다.**
 
-## 30초 시작
+## 바로 시작
 
 ```powershell
 git clone https://github.com/medialog-AX-TF/gpt2kiro.git
 cd gpt2kiro
-.\setup.ps1
 ```
 
-`Errors: 0`이 나오면 설치 완료입니다.
+이제 이 폴더를 Kiro에서 열고 평소처럼 대화하세요.
 
-그다음 같은 workspace에서 **Kiro를 열고 평소처럼 대화하세요.**
-
-별도의 Project 생성, ACTIVE 선택, Memory 관리 명령은 필요하지 않습니다.
+별도의 설치, Setup, Project 생성, ACTIVE 선택, Memory 관리 명령은 필요하지 않습니다.
 
 ## 무엇이 달라지나요?
 
@@ -42,7 +39,9 @@ Kiro가 최근 Memory 또는 관련 과거 기록을 참고해 이어서 작업�
 ## 내부 동작
 
 ```text
-Kiro 시작
+Kiro workspace 열기
+   ↓
+SessionStart Hook
    ↓
 Lessons + Recent Memory + Long-term Memory
    ↓
@@ -60,6 +59,8 @@ Context Budget
 > **사용자는 대화만 하고, Memory 관리는 Kiro가 맡습니다.**
 
 ## 문제가 있을 때
+
+필요한 경우에만 다음 명령으로 저장소 상태를 점검할 수 있습니다.
 
 ```powershell
 .\validate.ps1

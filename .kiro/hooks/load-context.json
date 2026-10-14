@@ -4,7 +4,7 @@
     {
       "name": "Load Unified Context on Session Start",
       "trigger": "SessionStart",
-      "description": "Load lessons, long-term memory, recent memory, and active project through one budgeted context builder.",
+      "description": "Load lessons, long-term memory, and recent memory through one budgeted context builder.",
       "action": {
         "type": "command",
         "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \".kiro\\scripts\\load-context.ps1\"",
