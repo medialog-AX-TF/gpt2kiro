@@ -3,7 +3,6 @@ param(
     [string]$Lessons = '',
     [string]$LongTerm = '',
     [string]$RecentMemory = '',
-    [string]$Project = '',
     [string]$ConfigPath = ''
 )
 
@@ -34,12 +33,10 @@ $parts = New-Object System.Collections.Generic.List[string]
 $lessonsOut = Clip-Tail $Lessons ([int]$config.sections.lessons)
 $longTermOut = Clip-Head $LongTerm ([int]$config.sections.longTerm)
 $recentOut = Clip-Head $RecentMemory ([int]$config.sections.recentMemory)
-$projectOut = Clip-Head $Project ([int]$config.sections.project)
 
 if ($lessonsOut) { $parts.Add("=== LESSONS ===`n$lessonsOut") }
 if ($longTermOut) { $parts.Add("=== LONG TERM MEMORY ===`n$longTermOut") }
 if ($recentOut) { $parts.Add("=== RECENT MEMORY ===`n$recentOut") }
-if ($projectOut) { $parts.Add("=== ACTIVE PROJECT ===`n$projectOut") }
 
 $body = $parts -join "`n`n---`n`n"
 $globalMax = [int]$config.totalTokens * $charsPerToken

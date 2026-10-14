@@ -26,9 +26,9 @@ jobs:
             exit 1
           }
 
-      - name: Smoke-test beginner setup wizard
+      - name: Smoke-test simple setup
         shell: powershell
-        run: .\setup.ps1 -NonInteractive -SkipProject
+        run: .\setup.ps1
 
       - name: Validate workspace structure
         shell: powershell
@@ -71,5 +71,5 @@ jobs:
       - name: Smoke-test relevant memory search
         shell: powershell
         run: |
-          $out = & .\.kiro\scripts\search-memory.ps1 -Query 'Kiro memory project' -Top 3
+          $out = & .\.kiro\scripts\search-memory.ps1 -Query 'Kiro memory' -Top 3
           if (-not $out) { throw 'Memory search returned no output.' }

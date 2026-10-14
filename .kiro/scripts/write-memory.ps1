@@ -6,7 +6,6 @@ param(
     [string]$Decision = '',
     [string]$Validation = '',
     [string]$Remaining = 'none',
-    [string]$ProjectSlug = '',
     [switch]$DryRun
 )
 
@@ -14,7 +13,6 @@ $ErrorActionPreference = 'Stop'
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $kiroDir = Split-Path $PSScriptRoot -Parent
 $memoryDir = Join-Path $kiroDir 'memory'
-$projectsDir = Join-Path $kiroDir 'projects'
 $sanitizer = Join-Path $PSScriptRoot 'sanitize-memory.ps1'
 
 if (-not (Test-Path -LiteralPath $sanitizer)) {
@@ -30,18 +28,6 @@ function Sanitize([string]$Value) {
     return $out
 }
 
-function Slugify([string]$Value) {
-    $s = $Value.Trim().ToLowerInvariant()
-    $s = $s -replace '[<>:"/\\|?*\.]', ''
-    $s = $s -replace '\s+', '-'
-    $s = $s -replace '[^\p{L}\p{Nd}\-_]', ''
-    $s = $s -replace '-{2,}', '-'
-    $s = $s.Trim('-', '_')
-    if (-not $s) { $s = 'session' }
-    if ($s.Length -gt 48) { $s = $s.Substring(0, 48).TrimEnd('-', '_') }
-    return $s
-}
-
 $topic = Sanitize $Topic
 $context = Sanitize $Context
 $work = Sanitize $Work
@@ -51,18 +37,6 @@ $remaining = Sanitize $Remaining
 
 $now = Get-Date
 $date = $now.ToString('yyyy-MM-dd')
-$time = $now.ToString('HHmmss')
-
-if (-not $ProjectSlug) {
-    $activePath = Join-Path $projectsDir 'ACTIVE'
-    if (Test-Path -LiteralPath $activePath) {
-        $rawActive = Get-Content -LiteralPath $activePath -Raw -Encoding UTF8
-        if ($rawActive) {
-            $ProjectSlug = (($rawActive -replace "`r", '') -split "`n" | Select-Object -First 1).Trim()
-        }
-    }
-}
-
 $body = @"
 ## Session: $topic
 
@@ -73,65 +47,23 @@ $body = @"
 **Remaining** $remaining
 "@
 
-if ($ProjectSlug) {
-    $projectDir = Join-Path $projectsDir $ProjectSlug
-    if (-not (Test-Path -LiteralPath $projectDir -PathType Container)) {
-        throw "Unknown project slug: $ProjectSlug"
-    }
+$target = Join-Path $memoryDir "$date.md"
+$indexEntry = "- [$date]($date.md) - $topic"
 
-    $chatsDir = Join-Path $projectDir 'chats'
-    $fileName = "$date-$time-$(Slugify $topic).md"
-    $target = Join-Path $chatsDir $fileName
-    $text = "# $date - $topic`n`n$body"
-    $relative = "../projects/$ProjectSlug/chats/$fileName"
-    $indexEntry = "- [$date]($relative) - [$ProjectSlug] $topic"
+if ($DryRun) {
+    Write-Output $body
+    exit 0
+}
 
-    if ($DryRun) {
-        Write-Output $text
-        exit 0
-    }
+if (-not (Test-Path -LiteralPath $memoryDir)) {
+    New-Item -ItemType Directory -Path $memoryDir | Out-Null
+}
 
-    if (-not (Test-Path -LiteralPath $chatsDir)) {
-        New-Item -ItemType Directory -Path $chatsDir | Out-Null
-    }
-    [System.IO.File]::WriteAllText($target, $text.TrimEnd() + "`n", $Utf8NoBom)
-
-    $projectIndex = Join-Path $projectDir 'index.md'
-    if (Test-Path -LiteralPath $projectIndex) {
-        $content = Get-Content -LiteralPath $projectIndex -Raw -Encoding UTF8
-        $entry = "- [$date $($now.ToString('HH:mm'))](chats/$fileName) - $topic"
-        $lines = $content -split "`r?`n"
-        $insertAt = 0
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match '^# ') { $insertAt = $i + 1; break }
-        }
-        while ($insertAt -lt $lines.Count -and [string]::IsNullOrWhiteSpace($lines[$insertAt])) { $insertAt++ }
-        $newLines = @()
-        if ($insertAt -gt 0) { $newLines += $lines[0..($insertAt - 1)] }
-        $newLines += $entry
-        if ($insertAt -lt $lines.Count) { $newLines += $lines[$insertAt..($lines.Count - 1)] }
-        [System.IO.File]::WriteAllText($projectIndex, (($newLines -join "`n").TrimEnd() + "`n"), $Utf8NoBom)
-    }
+if (-not (Test-Path -LiteralPath $target)) {
+    [System.IO.File]::WriteAllText($target, ("# $date`n`n$body").TrimEnd() + "`n", $Utf8NoBom)
 }
 else {
-    $target = Join-Path $memoryDir "$date.md"
-    $indexEntry = "- [$date]($date.md) - $topic"
-
-    if ($DryRun) {
-        Write-Output $body
-        exit 0
-    }
-
-    if (-not (Test-Path -LiteralPath $memoryDir)) {
-        New-Item -ItemType Directory -Path $memoryDir | Out-Null
-    }
-
-    if (-not (Test-Path -LiteralPath $target)) {
-        [System.IO.File]::WriteAllText($target, ("# $date`n`n$body").TrimEnd() + "`n", $Utf8NoBom)
-    }
-    else {
-        [System.IO.File]::AppendAllText($target, ("`n$body").TrimEnd() + "`n", $Utf8NoBom)
-    }
+    [System.IO.File]::AppendAllText($target, ("`n$body").TrimEnd() + "`n", $Utf8NoBom)
 }
 
 $memoryIndex = Join-Path $memoryDir 'index.md'
