@@ -26,7 +26,7 @@
 ### 이 환경은 Windows / PowerShell이다
 - 날짜: 2026-10-13
 - 상황: 워크스페이스 경로가 `e:\DEV\새 폴더` (한글·공백 포함), 홈은
-  `C:\Users\choiss`, 셸은 PowerShell.
+  `$env:USERPROFILE` 아래, 셸은 PowerShell.
 - 교훈: bash 문법을 쓰면 실패하거나, 더 나쁘게는 리터럴 문자열로 해석돼
   엉뚱한 파일·폴더를 만든다 (`%TEMP%` 같은 cmd 문법 포함).
 - 적용: 명령 구분자는 `;`, 환경변수는 `$env:VAR`, 파일 조작은 `Get-ChildItem` /
